@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="Wenskaarten" Height="550" Width="750">
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closing" >
+        <i:EventTrigger EventName="Closing">
             <gala:EventToCommand Command="{Binding ClosingCommand}" PassEventArgsToCommand="True" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
@@ -33,21 +33,29 @@
         </StatusBar>
         <StackPanel Name="Venster" Orientation="Horizontal" Visibility="{Binding Zichtbaar}">
             <StackPanel Width="500" Height="460" Margin="5">
-                <ItemsControl ItemsSource="{Binding Ballen}">
+                <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
+                        Drop="CanVas_Drop" Tag="Doek">
+                    <ContentPresenter Content="{Binding Doek}"/>
+                </Canvas>
+                <!--<ItemsControl ItemsSource="{Binding Path=Doek}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True"></Canvas>
+                            <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
+                        Drop="CanVas_Drop"></Canvas>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse></Ellipse>
+                            <Ellipse Fill="{Binding Path=Kleur}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
-                        <Style></Style>
+                        <Style>
+                            <Setter Property="Canvas.Top" Value="{Binding Path=Y}" />
+                            <Setter Property="Canvas.Left" Value="{Binding Path=X}" />
+                        </Style>
                     </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
+                </ItemsControl>-->
                 <TextBox Name="Tekstje" Margin="10" Text="{Binding Tekst}" 
                          FontFamily="{Binding Lettertype}" FontSize="{Binding Lettergrootte}" HorizontalAlignment="Center" 
                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center"></TextBox>
@@ -56,16 +64,22 @@
                 <StackPanel Name="PanelEllips" Height="100" Margin="5">
                     <TextBlock Height="24" HorizontalAlignment="Center">Kleur van de bal</TextBlock>
                     <ComboBox Name="comboBoxKleuren" Height="24" 
-                              ItemsSource="{Binding Kleuren}" SelectedItem="{Binding Kleur}"></ComboBox>
+                              ItemsSource="{Binding Kleuren}" SelectedItem="{Binding Path=Kleur, Mode=TwoWay}"></ComboBox>
                     <StackPanel Height="50">
-                        <Ellipse Margin="5" Fill="{Binding Kleur}"></Ellipse>
+                        <Ellipse Name="Ellips" Margin="5" Fill="{Binding Kleur}" MouseMove="Ellips_MouseMove">
+                            <!--<i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseMove">
+                                    <gala:EventToCommand Command="{Binding Path=Bal_MouseMove}" PassEventArgsToCommand="True" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>-->
+                        </Ellipse>
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Name="PanelVuilbak" Height="100" Width="100" Margin="5,40" Background="{Binding Vuilbak}"></StackPanel>
                 <StackPanel Name="PanelLettertype" Height="50" Margin="5,30,5,5">
                     <TextBlock Height="24" HorizontalAlignment="Center">Lettertype</TextBlock>
                     <ComboBox Name="lettertypeComboBox" Height="24" ItemsSource="{Binding Lettertypes}" 
-                              SelectedItem="{Binding Lettertype}"></ComboBox>
+                              SelectedItem="{Binding Path=Lettertype, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></ComboBox>
                 </StackPanel>
                 <StackPanel Name="PanelMeerMinder" Height="50" Margin="5" Orientation="Horizontal">
                     <TextBlock VerticalAlignment="Center">Grootte</TextBlock>

@@ -36,6 +36,8 @@ namespace WPFTestWenskaart.ViewModel
             Uri bron = new Uri("pack://application:,,,/Images/vuilnisbak.png", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
             Vuilbak = brush;
+            VulKleuren();
+            VulLettertypes();
             //CommandBinding mijnCtrlN = new CommandBinding(mijnRouteCtrlN, ctrlNExecuted); // ctrlNExecutes nog definiëren
             //this.CommandBindings.Add(mijnCtrlN); // Werkt niet!
             NieuweKaart();
@@ -109,7 +111,6 @@ namespace WPFTestWenskaart.ViewModel
             set
             {
                 kaart.Tekst = value;
-                NietLeeg = "True";
                 RaisePropertyChanged("Tekst");
             }
         }
@@ -137,7 +138,7 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Achtergrond");
             }
         }
-        public Shape Bal
+        public Ellipse Bal
         {
             get
             {
@@ -185,16 +186,67 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Path");
             }
         }
-        public string NietLeeg
+        public double X
         {
             get
             {
-                return kaart.NietLeeg;
+                return kaart.X;
             }
             set
             {
-                kaart.NietLeeg = value;
-                RaisePropertyChanged("NietLeeg");
+                kaart.X = value;
+                RaisePropertyChanged("X");
+            }
+        }
+        public double Y
+        {
+            get
+            {
+                return kaart.Y;
+            }
+            set
+            {
+                kaart.Y = value;
+                RaisePropertyChanged("Y");
+            }
+        }
+        private double x;
+        private double y;
+        public Point Point
+        {
+            get
+            {
+                return new Point(x, y);
+            }
+            set
+            {
+                x = value.X;
+                y = value.Y;
+                RaisePropertyChanged("X", "Y", "Point");
+            }
+        }
+        public Canvas Doek
+        {
+            get
+            {
+                return kaart.Doek;
+            }
+            set
+            {
+                kaart.Doek = value;
+                RaisePropertyChanged("Doek");
+            }
+        }
+        public int Aantal
+        {
+            get
+            {
+                return kaart.Aantal;
+            }
+            set
+            {
+                kaart.Aantal = value;
+                RaisePropertyChanged("Aantal");
             }
         }
         public RelayCommand NieuwCommand
@@ -207,7 +259,6 @@ namespace WPFTestWenskaart.ViewModel
             Tekst = "Je tekst hier";
             Lettergrootte = 18;
             Path = "nieuw";
-            NietLeeg = "False";
         }
         public RelayCommand OpslaanCommand
         {
@@ -228,8 +279,22 @@ namespace WPFTestWenskaart.ViewModel
                         bestand.WriteLine(Tekst);
                         bestand.WriteLine(Lettertype.ToString());
                         bestand.WriteLine(Lettergrootte.ToString());
-                        bestand.WriteLine(Achtergrond.ImageSource.ToString()); 
-                        // Aantal en Coördinaten ballen moeten er nog bij
+                        bestand.WriteLine(Achtergrond.ImageSource.ToString());
+                        //Aantal = Doek.Children.Count;
+                        //foreach (Ellipse ellips in Doek.Children)
+                        //    // Kan Canvas niet binden aan Doek, 
+                        //    // maar kan ObservableCollection ook niet aanvullen vanuit de view (waar drop nu zit)
+                        //    // dus zit hier vast
+                        //{
+                        //    double x = Canvas.GetLeft(ellips);
+                        //    double y = Canvas.GetTop(ellips);
+                        //    Brush kleur = ellips.Fill;
+                        //    bestand.WriteLine(x.ToString());
+                        //    bestand.WriteLine(y.ToString());
+                        //    bestand.WriteLine(kleur.ToString());
+                        //    Ballen.Add(ellips);
+                        //}
+                        Path = dlg.FileName;
                     }
                 }
             }
@@ -261,9 +326,9 @@ namespace WPFTestWenskaart.ViewModel
                         Uri bron = new Uri(bestand.ReadLine(), UriKind.Absolute);
                         brush.ImageSource = new BitmapImage(bron);
                         Achtergrond = brush;
-                        // Aantal en Coördinaten ballen moeten er nog bij
+                        // Aantal en Coördinaten ballen moeten er nog bij, eens opslaan ervan lukt
                         Path = dlg.FileName;
-                        Setup();
+                        Zichtbaar = "Visible";
                     }
                 }
             }
@@ -308,26 +373,17 @@ namespace WPFTestWenskaart.ViewModel
             }
             Lettertypes.Sort();
         }
-        private void Setup()
-        {
-            Zichtbaar = "Visible";
-            Kleuren = null;
-            Lettertypes = null;
-            VulKleuren();
-            VulLettertypes();
-        }
         public RelayCommand KerstCommand
         {
             get { return new RelayCommand(KerstKaart); }
         }
         private void KerstKaart()
         {
-            //Zichtbaar = "Visible";
+            Zichtbaar = "Visible";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/kerstkaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
             Achtergrond = brush;
-            Setup();
         }
         public RelayCommand GeboorteCommand
         {
@@ -335,12 +391,11 @@ namespace WPFTestWenskaart.ViewModel
         }
         private void GeboorteKaart()
         {
-            //Zichtbaar = "Visible";
+            Zichtbaar = "Visible";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/geboortekaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
             Achtergrond = brush;
-            Setup();
         }
         public RelayCommand MeerCommand
         { get { return new RelayCommand(MeerBetalen); } }
@@ -356,6 +411,19 @@ namespace WPFTestWenskaart.ViewModel
             if (Lettergrootte > 10)
                 Lettergrootte--;
         }
-
+        //public RelayCommand<MouseEventArgs> Bal_MouseMove
+        //{
+        //    get { return new RelayCommand<MouseEventArgs>(OnMouseMove); }
+        //}
+        //private Ellipse sleepbal = new Ellipse();
+        //private void OnMouseMove(MouseEventArgs e)
+        //{
+        //    //sleepbal = (Ellipse)sender;
+        //    if (e.LeftButton == MouseButtonState.Pressed)
+        //    {
+        //        //DataObject sleepkleur = new DataObject("deKleur", sleepbal.Fill);
+        //        DragDrop.DoDragDrop(Bal, Kleur, DragDropEffects.Move);
+        //    }
+        //}
     }
 }
