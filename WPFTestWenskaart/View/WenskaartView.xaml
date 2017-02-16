@@ -33,15 +33,20 @@
         </StatusBar>
         <StackPanel Name="Venster" Orientation="Horizontal" Visibility="{Binding Zichtbaar}">
             <StackPanel Width="500" Height="460" Margin="5">
-                <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
+                <!--<Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
                         Drop="CanVas_Drop" Tag="Doek">
                     <ContentPresenter Content="{Binding Doek}"/>
-                </Canvas>
-                <!--<ItemsControl ItemsSource="{Binding Path=Doek}">
+                </Canvas>-->
+                <ItemsControl ItemsSource="{Binding Ballen}" AllowDrop="True">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Drop">
+                            <gala:EventToCommand Command="{Binding Bal_MouseDrop}" PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
-                        Drop="CanVas_Drop"></Canvas>
+                            <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" IsItemsHost="True">
+                            </Canvas>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
@@ -55,7 +60,7 @@
                             <Setter Property="Canvas.Left" Value="{Binding Path=X}" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
-                </ItemsControl>-->
+                </ItemsControl>
                 <TextBox Name="Tekstje" Margin="10" Text="{Binding Tekst}" 
                          FontFamily="{Binding Lettertype}" FontSize="{Binding Lettergrootte}" HorizontalAlignment="Center" 
                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center"></TextBox>
@@ -66,12 +71,12 @@
                     <ComboBox Name="comboBoxKleuren" Height="24" 
                               ItemsSource="{Binding Kleuren}" SelectedItem="{Binding Path=Kleur, Mode=TwoWay}"></ComboBox>
                     <StackPanel Height="50">
-                        <Ellipse Name="Ellips" Margin="5" Fill="{Binding Kleur}" MouseMove="Ellips_MouseMove">
-                            <!--<i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseMove">
-                                    <gala:EventToCommand Command="{Binding Path=Bal_MouseMove}" PassEventArgsToCommand="True" />
+                        <Ellipse Name="Ellips" Margin="5" BindingGroup="{Binding Path=Bal}" Fill="{Binding Kleur}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <gala:EventToCommand Command="{Binding Bal_MouseMove}" PassEventArgsToCommand="True" />
                                 </i:EventTrigger>
-                            </i:Interaction.Triggers>-->
+                            </i:Interaction.Triggers>
                         </Ellipse>
                     </StackPanel>
                 </StackPanel>

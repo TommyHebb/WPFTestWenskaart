@@ -150,7 +150,7 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Bal");
             }
         }
-        public ObservableCollection<Shape> Ballen
+        public ObservableCollection<Bal> Ballen
         {
             get
             {
@@ -411,19 +411,38 @@ namespace WPFTestWenskaart.ViewModel
             if (Lettergrootte > 10)
                 Lettergrootte--;
         }
-        //public RelayCommand<MouseEventArgs> Bal_MouseMove
-        //{
-        //    get { return new RelayCommand<MouseEventArgs>(OnMouseMove); }
-        //}
-        //private Ellipse sleepbal = new Ellipse();
-        //private void OnMouseMove(MouseEventArgs e)
-        //{
-        //    //sleepbal = (Ellipse)sender;
-        //    if (e.LeftButton == MouseButtonState.Pressed)
-        //    {
-        //        //DataObject sleepkleur = new DataObject("deKleur", sleepbal.Fill);
-        //        DragDrop.DoDragDrop(Bal, Kleur, DragDropEffects.Move);
-        //    }
-        //}
+        public RelayCommand<MouseEventArgs> Bal_MouseMove
+        {
+            get { return new RelayCommand<MouseEventArgs>(OnMouseMove); }
+        }
+        private Ellipse sleepbal = new Ellipse();
+        private void OnMouseMove(MouseEventArgs e)
+        {
+            sleepbal = (Ellipse)e.OriginalSource;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                //DataObject sleepkleur = new DataObject("deKleur", sleepbal.Fill);
+                DragDrop.DoDragDrop(sleepbal, Kleur, DragDropEffects.Move);
+            }
+        }
+        public RelayCommand<DragEventArgs> Bal_MouseDrop
+        {
+            get { return new RelayCommand<DragEventArgs>(OnMouseDrop); }
+        }
+        private void OnMouseDrop(DragEventArgs e)
+        {
+            Ellipse bal = new Ellipse();
+            bal.Fill = sleepbal.Fill;
+            ItemsControl doekje = (ItemsControl)e.Source;
+            Canvas doek = (Canvas)e.OriginalSource;
+            Point point = e.GetPosition(doekje);
+            double x = point.X - 20;
+            double y = point.Y - 20;
+            Canvas.SetLeft(bal, x);
+            Canvas.SetTop(bal, y);
+            //doek.Children.Add(bal);
+            //doek.Items.Add(bal);
+            Ballen.Add(bal); // zie class Bal in Wenskaart
+        }
     }
 }
