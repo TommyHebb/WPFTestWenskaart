@@ -26,20 +26,22 @@ namespace WPFTestWenskaart.Model
         public Point Point { get; set; }
         public Canvas Doek { get; set; }
         public int Aantal { get; set; }
+        public string Kerst { get; set; }
+        public string Geboorte { get; set; }
     }
     public class Bal
     {
-        public Bal(double x, double y, Shape vorm, Brush kleur)
+        public Bal(double x, double y, Ellipse ellips, Brush kleur)
         {
             this.x = x;
             this.y = y;
-            this.vorm = vorm;
+            this.ellips = ellips;
             this.kleur = kleur;
         }
         private double x;
         private double y;
+        private Ellipse ellips;
         private Brush kleur;
-        private Shape vorm;
         public double X
         {
             get { return x; }
@@ -50,10 +52,10 @@ namespace WPFTestWenskaart.Model
             get { return y; }
             set { y = value; }
         }
-        public Shape Vorm
+        public Ellipse Ellips
         {
-            get { return vorm; }
-            set { vorm = value; }
+            get { return ellips; }
+            set { ellips = value; }
         }
         public Brush Kleur
         {

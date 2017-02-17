@@ -24,8 +24,10 @@
                 <MenuItem Name="Afsluiten" Header="Afsluiten" Command="{Binding AfsluitenCommand}"></MenuItem>
             </MenuItem>
             <MenuItem Name="MenuKaarten" Header="Kaarten">
-                <MenuItem Name="Kerstkaart" Header="Kerstkaart" Command="{Binding KerstCommand}"></MenuItem>
-                <MenuItem Name="Geboortekaart" Header="Geboortekaart" Command="{Binding GeboorteCommand}"></MenuItem>
+                <MenuItem Name="Kerstkaart" Header="Kerstkaart" Command="{Binding KerstCommand}" 
+                          IsCheckable="True" IsChecked="{Binding Kerst}"></MenuItem>
+                <MenuItem Name="Geboortekaart" Header="Geboortekaart" Command="{Binding GeboorteCommand}" 
+                          IsCheckable="True" IsChecked="{Binding Geboorte}"></MenuItem>
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" Height="24">
@@ -37,7 +39,7 @@
                         Drop="CanVas_Drop" Tag="Doek">
                     <ContentPresenter Content="{Binding Doek}"/>
                 </Canvas>-->
-                <ItemsControl ItemsSource="{Binding Ballen}" AllowDrop="True">
+                <ItemsControl ItemsSource="{Binding Ballen.Children}" AllowDrop="True">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Drop">
                             <gala:EventToCommand Command="{Binding Bal_MouseDrop}" PassEventArgsToCommand="True" />
@@ -51,7 +53,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Fill="{Binding Path=Kleur}"/>
+                            <!--<Ellipse />--> <!--Nodig voor eventueel vervolg opdracht... slepen naar vuilbak-->
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
@@ -84,15 +86,15 @@
                 <StackPanel Name="PanelLettertype" Height="50" Margin="5,30,5,5">
                     <TextBlock Height="24" HorizontalAlignment="Center">Lettertype</TextBlock>
                     <ComboBox Name="lettertypeComboBox" Height="24" ItemsSource="{Binding Lettertypes}" 
-                              SelectedItem="{Binding Path=Lettertype, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></ComboBox>
+                              SelectedItem="{Binding Path=Lettertype, Mode=TwoWay}"></ComboBox>
                 </StackPanel>
                 <StackPanel Name="PanelMeerMinder" Height="50" Margin="5" Orientation="Horizontal">
                     <TextBlock VerticalAlignment="Center">Grootte</TextBlock>
                     <Label Name="FontGrootte" Width="30" Margin="10,0" HorizontalContentAlignment="Center" 
                            VerticalContentAlignment="Center" Content="{Binding Lettergrootte}"></Label>
                     <StackPanel Name="MeerMinder">
-                        <Button Height="20" Content="+" Command="{Binding MeerCommand}"></Button>
-                        <Button Height="20" Content="-" Command="{Binding MinderCommand}"></Button>
+                        <RepeatButton Height="20" Content="+" Command="{Binding MeerCommand}" Interval="100" Delay="1000"></RepeatButton>
+                        <RepeatButton Height="20" Content="-" Command="{Binding MinderCommand}" Interval="100" Delay="1000"></RepeatButton>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

@@ -38,6 +38,8 @@ namespace WPFTestWenskaart.ViewModel
             Vuilbak = brush;
             VulKleuren();
             VulLettertypes();
+
+            //ObservableCollection<Bal> ballen = new ObservableCollection<Bal>();
             //CommandBinding mijnCtrlN = new CommandBinding(mijnRouteCtrlN, ctrlNExecuted); // ctrlNExecutes nog definiëren
             //this.CommandBindings.Add(mijnCtrlN); // Werkt niet!
             NieuweKaart();
@@ -150,15 +152,23 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Bal");
             }
         }
+        private ObservableCollection<Bal> ballenValue = new ObservableCollection<Model.Bal>();
         public ObservableCollection<Bal> Ballen
         {
             get
             {
-                return kaart.Ballen;
+                return ballenValue;
             }
             set
             {
-                kaart.Ballen = value;
+                //if (ballenValue == null)
+                //{
+                //    ObservableCollection<Bal> ballenValue = new ObservableCollection<Bal>();
+                //}
+                //else
+                //{
+                    ballenValue = value;
+                //}
                 RaisePropertyChanged("Ballen");
             }
         }
@@ -249,6 +259,30 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Aantal");
             }
         }
+        public string Kerst
+        {
+            get
+            {
+                return kaart.Kerst;
+            }
+            set
+            {
+                kaart.Kerst = value;
+                RaisePropertyChanged("Kerst");
+            }
+        }
+        public string Geboorte
+        {
+            get
+            {
+                return kaart.Geboorte;
+            }
+            set
+            {
+                kaart.Geboorte = value;
+                RaisePropertyChanged("Geboorte");
+            }
+        }
         public RelayCommand NieuwCommand
         {
             get { return new RelayCommand(NieuweKaart); }
@@ -256,9 +290,13 @@ namespace WPFTestWenskaart.ViewModel
         private void NieuweKaart()
         {
             Zichtbaar = "Hidden";
+            Kerst = "False";
+            Geboorte = "False";
             Tekst = "Je tekst hier";
             Lettergrootte = 18;
             Path = "nieuw";
+            Ballen.Clear();
+            Aantal = 0;
         }
         public RelayCommand OpslaanCommand
         {
@@ -276,24 +314,15 @@ namespace WPFTestWenskaart.ViewModel
                 {
                     using (StreamWriter bestand = new StreamWriter(dlg.FileName))
                     {
-                        bestand.WriteLine(Tekst);
-                        bestand.WriteLine(Lettertype.ToString());
-                        bestand.WriteLine(Lettergrootte.ToString());
-                        bestand.WriteLine(Achtergrond.ImageSource.ToString());
-                        //Aantal = Doek.Children.Count;
-                        //foreach (Ellipse ellips in Doek.Children)
-                        //    // Kan Canvas niet binden aan Doek, 
-                        //    // maar kan ObservableCollection ook niet aanvullen vanuit de view (waar drop nu zit)
-                        //    // dus zit hier vast
-                        //{
-                        //    double x = Canvas.GetLeft(ellips);
-                        //    double y = Canvas.GetTop(ellips);
-                        //    Brush kleur = ellips.Fill;
-                        //    bestand.WriteLine(x.ToString());
-                        //    bestand.WriteLine(y.ToString());
-                        //    bestand.WriteLine(kleur.ToString());
-                        //    Ballen.Add(ellips);
-                        //}
+                        bestand.WriteLine(Achtergrond.ImageSource.ToString());  // Regel 1 - URI
+                        bestand.WriteLine(Aantal.ToString());                   // Regel 2 - Aantal ballen
+                        foreach (Bal child in Ballen)                           // regel 3...Ballen (kleur;X;Y)
+                        {
+                            bestand.WriteLine(child.Kleur.ToString() + ';' + child.X.ToString() + ';' + child.Y.ToString());
+                        }
+                        bestand.WriteLine(Tekst);                               // 3e laatste regel - Tekstje
+                        bestand.WriteLine(Lettertype.ToString());               // Voorlaatste regel - Lettertype
+                        bestand.WriteLine(Lettergrootte.ToString());            // Laatste regel - Lettergrootte
                         Path = dlg.FileName;
                     }
                 }
@@ -319,14 +348,40 @@ namespace WPFTestWenskaart.ViewModel
                 {
                     using (StreamReader bestand = new StreamReader(dlg.FileName))
                     {
-                        Tekst = bestand.ReadLine();
-                        Lettertype = new FontFamily(bestand.ReadLine());
-                        Lettergrootte = int.Parse(bestand.ReadLine());
                         ImageBrush brush = new ImageBrush();
-                        Uri bron = new Uri(bestand.ReadLine(), UriKind.Absolute);
+                        string uriString = bestand.ReadLine();              // Regel 1 - URI
+                        Uri bron = new Uri(uriString, UriKind.Absolute);
                         brush.ImageSource = new BitmapImage(bron);
                         Achtergrond = brush;
-                        // Aantal en Coördinaten ballen moeten er nog bij, eens opslaan ervan lukt
+                        int positieA = uriString.LastIndexOf("/");
+                        string soortKaart = uriString.Substring(positieA + 1);
+                        int positieB = soortKaart.LastIndexOf(".");
+                        soortKaart = soortKaart.Remove(positieB, 4);
+                        if (soortKaart == "kerstkaart")
+                        {
+                            Kerst = "True";
+                            Geboorte = "False";
+                        }
+                        else
+                        {
+                            Kerst = "False";
+                            Geboorte = "True";
+                        }
+                        Aantal = int.Parse(bestand.ReadLine());             // Regel 2 - Aantal ballen
+                        for (int i = 1; i <= Aantal; i++)
+                        {
+                            string lijn = bestand.ReadLine();               // Regel 3...Ballen (kleur;X;Y)
+                            var delen = lijn.Split(new[] { ';' });
+                            Kleur = (Brush)new BrushConverter().ConvertFromString(delen[0]);
+                            X = double.Parse(delen[1]);
+                            Y = double.Parse(delen[2]);
+                            Ellipse balletje = new Ellipse();
+                            Bal bal = new Model.Bal(X, Y, balletje, Kleur);
+                            Ballen.Add(bal);
+                        }
+                        Tekst = bestand.ReadLine();                         // 3e laatste regel - Tekstje
+                        Lettertype = new FontFamily(bestand.ReadLine());    // Voorlaatste regel - Lettertype
+                        Lettergrootte = int.Parse(bestand.ReadLine());      // Laatste regel - Lettergrootte
                         Path = dlg.FileName;
                         Zichtbaar = "Visible";
                     }
@@ -380,6 +435,16 @@ namespace WPFTestWenskaart.ViewModel
         private void KerstKaart()
         {
             Zichtbaar = "Visible";
+            if (Geboorte == "True")
+            {
+                Geboorte = "False";
+                Tekst = "Je tekst hier";
+                Lettergrootte = 18;
+                Path = "nieuw";
+                Ballen.Clear();
+                Aantal = 0;
+            }
+            Kerst = "True";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/kerstkaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
@@ -392,6 +457,16 @@ namespace WPFTestWenskaart.ViewModel
         private void GeboorteKaart()
         {
             Zichtbaar = "Visible";
+            if (Kerst == "True")
+            {
+                Kerst = "False";
+                Tekst = "Je tekst hier";
+                Lettergrootte = 18;
+                Path = "nieuw";
+                Ballen.Clear();
+                Aantal = 0;
+            }
+            Geboorte = "True";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/geboortekaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
@@ -431,18 +506,22 @@ namespace WPFTestWenskaart.ViewModel
         }
         private void OnMouseDrop(DragEventArgs e)
         {
-            Ellipse bal = new Ellipse();
-            bal.Fill = sleepbal.Fill;
             ItemsControl doekje = (ItemsControl)e.Source;
-            Canvas doek = (Canvas)e.OriginalSource;
+            //Canvas doek = (Canvas)e.OriginalSource;
             Point point = e.GetPosition(doekje);
             double x = point.X - 20;
             double y = point.Y - 20;
-            Canvas.SetLeft(bal, x);
-            Canvas.SetTop(bal, y);
-            //doek.Children.Add(bal);
+            Ellipse balletje = new Ellipse();
+            //balletje.Fill = sleepbal.Fill;
+            //Canvas.SetLeft(balletje, x);
+            //Canvas.SetTop(balletje, y);
+            Brush kleur = sleepbal.Fill;
+            //Ellipse ellips = sleepbal;
+            Bal bal = new Model.Bal(x, y, balletje, kleur);
+            //doek.Children.Add(balletje);
             //doek.Items.Add(bal);
-            Ballen.Add(bal); // zie class Bal in Wenskaart
+            Ballen.Add(bal);
+            Aantal = Ballen.Count();
         }
     }
 }
