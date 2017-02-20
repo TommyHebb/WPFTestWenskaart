@@ -15,15 +15,15 @@
     </i:Interaction.Triggers>
     <DockPanel LastChildFill="True">
         <Menu Height="24" Name="MenuBalk" DockPanel.Dock="Top">
-            <MenuItem Name="MenuBestand" Header="Bestand">
-                <MenuItem Name="Nieuw" Header="Nieuw" Command="{Binding NieuwCommand}" InputGestureText="Ctrl+N"></MenuItem>
-                <MenuItem Name="Openen" Header="Openen" Command="{Binding OpenenCommand}" InputGestureText="Ctrl+O"></MenuItem>
-                <MenuItem Name="Opslaan" Header="Opslaan" IsEnabled="{Binding NietLeeg}" Command="{Binding OpslaanCommand}" InputGestureText="Ctrl+S"></MenuItem>
-                <MenuItem Name="Afdrukvoorbeeld" Header="Afdrukvoorbeeld" IsEnabled="{Binding NietLeeg}" InputGestureText="Ctrl+F2"></MenuItem>
+            <MenuItem Name="MenuBestand" Header="_Bestand">
+                <MenuItem Name="Nieuw" Header="_Nieuw" Command="{Binding NieuwCommand}" InputGestureText="Ctrl+N"></MenuItem>
+                <MenuItem Name="Openen" Header="_Openen" Command="{Binding OpenenCommand}" InputGestureText="Ctrl+O"></MenuItem>
+                <MenuItem Name="Opslaan" Header="Op_slaan" IsEnabled="{Binding OpslaanAfdruk}" Command="{Binding OpslaanCommand}" InputGestureText="Ctrl+S"></MenuItem>
+                <MenuItem Name="Afdrukvoorbeeld" Header="Afdrukvoorbeeld" IsEnabled="{Binding OpslaanAfdruk}" InputGestureText="Ctrl+F2"></MenuItem>
                 <Separator></Separator>
                 <MenuItem Name="Afsluiten" Header="Afsluiten" Command="{Binding AfsluitenCommand}"></MenuItem>
             </MenuItem>
-            <MenuItem Name="MenuKaarten" Header="Kaarten">
+            <MenuItem Name="MenuKaarten" Header="_Kaarten">
                 <MenuItem Name="Kerstkaart" Header="Kerstkaart" Command="{Binding KerstCommand}" 
                           IsCheckable="True" IsChecked="{Binding Kerst}"></MenuItem>
                 <MenuItem Name="Geboortekaart" Header="Geboortekaart" Command="{Binding GeboorteCommand}" 
@@ -35,11 +35,7 @@
         </StatusBar>
         <StackPanel Name="Venster" Orientation="Horizontal" Visibility="{Binding Zichtbaar}">
             <StackPanel Width="500" Height="460" Margin="5">
-                <!--<Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" AllowDrop="True" 
-                        Drop="CanVas_Drop" Tag="Doek">
-                    <ContentPresenter Content="{Binding Doek}"/>
-                </Canvas>-->
-                <ItemsControl ItemsSource="{Binding Ballen.Children}" AllowDrop="True">
+                <ItemsControl ItemsSource="{Binding Path=Ballen}" AllowDrop="True">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Drop">
                             <gala:EventToCommand Command="{Binding Bal_MouseDrop}" PassEventArgsToCommand="True" />
@@ -47,13 +43,19 @@
                     </i:Interaction.Triggers>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <Canvas Name="CanVas" Width="500" Height="400" Background="{Binding Achtergrond}" IsItemsHost="True">
+                            <Canvas Width="500" Height="400" Background="{Binding Achtergrond}" IsItemsHost="True">
                             </Canvas>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <!--<Ellipse />--> <!--Nodig voor eventueel vervolg opdracht... slepen naar vuilbak-->
+                            <Ellipse Fill="{Binding Path=Kleur}"  Tag="CanvasBal">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown">
+                                        <gala:EventToCommand Command="{Binding BalCanvas_MouseMove}" PassEventArgsToCommand="True" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Ellipse>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
@@ -70,10 +72,10 @@
             <StackPanel Width="200" Height="440" Margin="15">
                 <StackPanel Name="PanelEllips" Height="100" Margin="5">
                     <TextBlock Height="24" HorizontalAlignment="Center">Kleur van de bal</TextBlock>
-                    <ComboBox Name="comboBoxKleuren" Height="24" 
-                              ItemsSource="{Binding Kleuren}" SelectedItem="{Binding Path=Kleur, Mode=TwoWay}"></ComboBox>
+                    <ComboBox Name="comboBoxKleuren" Height="24"
+                              ItemsSource="{Binding Kleuren}" SelectedValue="{Binding Path=Kleur, Mode=TwoWay}"></ComboBox>
                     <StackPanel Height="50">
-                        <Ellipse Name="Ellips" Margin="5" BindingGroup="{Binding Path=Bal}" Fill="{Binding Kleur}">
+                        <Ellipse Margin="5"  Fill="{Binding Kleur}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseDown">
                                     <gala:EventToCommand Command="{Binding Bal_MouseMove}" PassEventArgsToCommand="True" />
@@ -82,11 +84,23 @@
                         </Ellipse>
                     </StackPanel>
                 </StackPanel>
-                <StackPanel Name="PanelVuilbak" Height="100" Width="100" Margin="5,40" Background="{Binding Vuilbak}"></StackPanel>
+                <ItemsControl AllowDrop="True">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Drop">
+                            <gala:EventToCommand Command="{Binding BalDelete_MouseDrop}" PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Name="PanelVuilbak" Height="100" Width="100" Margin="5,40" Background="{Binding Vuilbak}">
+                            </StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
                 <StackPanel Name="PanelLettertype" Height="50" Margin="5,30,5,5">
                     <TextBlock Height="24" HorizontalAlignment="Center">Lettertype</TextBlock>
                     <ComboBox Name="lettertypeComboBox" Height="24" ItemsSource="{Binding Lettertypes}" 
-                              SelectedItem="{Binding Path=Lettertype, Mode=TwoWay}"></ComboBox>
+                              SelectedValue="{Binding Path=Lettertype, Mode=TwoWay}"></ComboBox>
                 </StackPanel>
                 <StackPanel Name="PanelMeerMinder" Height="50" Margin="5" Orientation="Horizontal">
                     <TextBlock VerticalAlignment="Center">Grootte</TextBlock>

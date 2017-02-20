@@ -8,8 +8,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,18 +15,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WPFTestWenskaart.Model;
-using WPFTestWenskaart.View;
-
+//Nog te implementeren:
+//    Printvoorbeeld/Printen
+//    Vuilbak
+//    Verplaatsen bal op Canvas
 namespace WPFTestWenskaart.ViewModel
 {
     public class WenskaartVM : ViewModelBase
     {
         private Wenskaart kaart;
-        //Zie NieuweKaart(), routes werken niet!
-        //public static RoutedCommand mijnRouteCtrlN = new RoutedCommand();
-        //public static RoutedCommand mijnRouteCtrlO = new RoutedCommand();
-        //public static RoutedCommand mijnRouteCtrlS = new RoutedCommand();
-        //public static RoutedCommand mijnRouteCtrlF2 = new RoutedCommand();
         public WenskaartVM(Wenskaart nKaart)
         {
             kaart = nKaart;
@@ -38,10 +33,6 @@ namespace WPFTestWenskaart.ViewModel
             Vuilbak = brush;
             VulKleuren();
             VulLettertypes();
-
-            //ObservableCollection<Bal> ballen = new ObservableCollection<Bal>();
-            //CommandBinding mijnCtrlN = new CommandBinding(mijnRouteCtrlN, ctrlNExecuted); // ctrlNExecutes nog definiëren
-            //this.CommandBindings.Add(mijnCtrlN); // Werkt niet!
             NieuweKaart();
         }
         public List<string> Kleuren
@@ -152,7 +143,7 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Bal");
             }
         }
-        private ObservableCollection<Bal> ballenValue = new ObservableCollection<Model.Bal>();
+        private ObservableCollection<Bal> ballenValue = new ObservableCollection<Bal>();
         public ObservableCollection<Bal> Ballen
         {
             get
@@ -161,14 +152,7 @@ namespace WPFTestWenskaart.ViewModel
             }
             set
             {
-                //if (ballenValue == null)
-                //{
-                //    ObservableCollection<Bal> ballenValue = new ObservableCollection<Bal>();
-                //}
-                //else
-                //{
-                    ballenValue = value;
-                //}
+                ballenValue = value;
                 RaisePropertyChanged("Ballen");
             }
         }
@@ -235,18 +219,6 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("X", "Y", "Point");
             }
         }
-        public Canvas Doek
-        {
-            get
-            {
-                return kaart.Doek;
-            }
-            set
-            {
-                kaart.Doek = value;
-                RaisePropertyChanged("Doek");
-            }
-        }
         public int Aantal
         {
             get
@@ -283,6 +255,18 @@ namespace WPFTestWenskaart.ViewModel
                 RaisePropertyChanged("Geboorte");
             }
         }
+        public string OpslaanAfdruk
+        {
+            get
+            {
+                return kaart.OpslaanAfdruk;
+            }
+            set
+            {
+                kaart.OpslaanAfdruk = value;
+                RaisePropertyChanged("OpslaanAfdruk");
+            }
+        }
         public RelayCommand NieuwCommand
         {
             get { return new RelayCommand(NieuweKaart); }
@@ -292,10 +276,13 @@ namespace WPFTestWenskaart.ViewModel
             Zichtbaar = "Hidden";
             Kerst = "False";
             Geboorte = "False";
+            OpslaanAfdruk = "False";
             Tekst = "Je tekst hier";
             Lettergrootte = 18;
             Path = "nieuw";
             Ballen.Clear();
+            Kleur = Brushes.AliceBlue;
+            Lettertype = new FontFamily("Agency FB");
             Aantal = 0;
         }
         public RelayCommand OpslaanCommand
@@ -367,6 +354,7 @@ namespace WPFTestWenskaart.ViewModel
                             Kerst = "False";
                             Geboorte = "True";
                         }
+                        Ballen.Clear();
                         Aantal = int.Parse(bestand.ReadLine());             // Regel 2 - Aantal ballen
                         for (int i = 1; i <= Aantal; i++)
                         {
@@ -406,7 +394,7 @@ namespace WPFTestWenskaart.ViewModel
         }
         public void OnWindowClosing(CancelEventArgs e)
         {
-            if (MessageBox.Show("Wilt u het programma sluiten ?", "Afsluiten", 
+            if (MessageBox.Show("Wilt u het programma sluiten ?", "Afsluiten",
             MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) ==
             MessageBoxResult.No)
                 e.Cancel = true;
@@ -445,6 +433,7 @@ namespace WPFTestWenskaart.ViewModel
                 Aantal = 0;
             }
             Kerst = "True";
+            OpslaanAfdruk = "True";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/kerstkaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
@@ -467,6 +456,7 @@ namespace WPFTestWenskaart.ViewModel
                 Aantal = 0;
             }
             Geboorte = "True";
+            OpslaanAfdruk = "True";
             ImageBrush brush = new ImageBrush();
             Uri bron = new Uri("pack://application:,,,/Images/geboortekaart.jpg", UriKind.Absolute);
             brush.ImageSource = new BitmapImage(bron);
@@ -496,7 +486,6 @@ namespace WPFTestWenskaart.ViewModel
             sleepbal = (Ellipse)e.OriginalSource;
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                //DataObject sleepkleur = new DataObject("deKleur", sleepbal.Fill);
                 DragDrop.DoDragDrop(sleepbal, Kleur, DragDropEffects.Move);
             }
         }
@@ -507,21 +496,34 @@ namespace WPFTestWenskaart.ViewModel
         private void OnMouseDrop(DragEventArgs e)
         {
             ItemsControl doekje = (ItemsControl)e.Source;
-            //Canvas doek = (Canvas)e.OriginalSource;
             Point point = e.GetPosition(doekje);
-            double x = point.X - 20;
-            double y = point.Y - 20;
+            X = point.X - 20;
+            Y = point.Y - 20;
             Ellipse balletje = new Ellipse();
-            //balletje.Fill = sleepbal.Fill;
-            //Canvas.SetLeft(balletje, x);
-            //Canvas.SetTop(balletje, y);
-            Brush kleur = sleepbal.Fill;
-            //Ellipse ellips = sleepbal;
-            Bal bal = new Model.Bal(x, y, balletje, kleur);
-            //doek.Children.Add(balletje);
-            //doek.Items.Add(bal);
+            Bal bal = new Bal(X, Y, balletje, Kleur);
             Ballen.Add(bal);
             Aantal = Ballen.Count();
+        }
+        public RelayCommand<MouseEventArgs> BalCanvas_MouseMove
+        {
+            get { return new RelayCommand<MouseEventArgs>(OnCanvasMouseMove); }
+        }
+        private Ellipse canvasSleepbal = new Ellipse();
+        private void OnCanvasMouseMove(MouseEventArgs e)
+        {
+            canvasSleepbal = (Ellipse)e.OriginalSource;
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(canvasSleepbal, Kleur, DragDropEffects.Move);
+            }
+        }
+        public RelayCommand<DragEventArgs> BalDelete_MouseDrop
+        {
+            get { return new RelayCommand<DragEventArgs>(OnDeleteMouseDrop); }
+        }
+        private void OnDeleteMouseDrop(DragEventArgs e)
+        {
+
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -24,24 +23,23 @@ namespace WPFTestWenskaart.Model
         public double X { get; set; }
         public double Y { get; set; }
         public Point Point { get; set; }
-        public Canvas Doek { get; set; }
         public int Aantal { get; set; }
         public string Kerst { get; set; }
         public string Geboorte { get; set; }
+        public string OpslaanAfdruk { get; set; }
     }
     public class Bal
     {
         public Bal(double x, double y, Ellipse ellips, Brush kleur)
         {
-            this.x = x;
-            this.y = y;
-            this.ellips = ellips;
-            this.kleur = kleur;
+            X = x;
+            Y = y;
+            Ellips = ellips;
+            Kleur = kleur;
         }
         private double x;
         private double y;
         private Ellipse ellips;
-        private Brush kleur;
         public double X
         {
             get { return x; }
@@ -59,8 +57,8 @@ namespace WPFTestWenskaart.Model
         }
         public Brush Kleur
         {
-            get { return kleur; }
-            set { kleur = value; }
+            get { return Ellips.Fill; }
+            set { Ellips.Fill = value; }
         }
     }
 }
