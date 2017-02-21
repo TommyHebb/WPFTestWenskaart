@@ -19,7 +19,7 @@
                 <MenuItem Name="Nieuw" Header="_Nieuw" Command="{Binding NieuwCommand}" InputGestureText="Ctrl+N"></MenuItem>
                 <MenuItem Name="Openen" Header="_Openen" Command="{Binding OpenenCommand}" InputGestureText="Ctrl+O"></MenuItem>
                 <MenuItem Name="Opslaan" Header="Op_slaan" IsEnabled="{Binding OpslaanAfdruk}" Command="{Binding OpslaanCommand}" InputGestureText="Ctrl+S"></MenuItem>
-                <MenuItem Name="Afdrukvoorbeeld" Header="Afdrukvoorbeeld" IsEnabled="{Binding OpslaanAfdruk}" InputGestureText="Ctrl+F2"></MenuItem>
+                <MenuItem Name="Afdrukvoorbeeld" Header="Afdrukvoorbeeld" IsEnabled="{Binding OpslaanAfdruk}" Command="{Binding PrintPreviewCommand}" InputGestureText="Ctrl+F2"></MenuItem>
                 <Separator></Separator>
                 <MenuItem Name="Afsluiten" Header="Afsluiten" Command="{Binding AfsluitenCommand}"></MenuItem>
             </MenuItem>

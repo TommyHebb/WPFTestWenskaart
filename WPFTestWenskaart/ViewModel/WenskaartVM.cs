@@ -10,13 +10,13 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WPFTestWenskaart.Model;
 //Nog te implementeren:
-//    Printvoorbeeld/Printen
 //    Vuilbak
 //    Verplaatsen bal op Canvas
 namespace WPFTestWenskaart.ViewModel
@@ -372,6 +372,7 @@ namespace WPFTestWenskaart.ViewModel
                         Lettergrootte = int.Parse(bestand.ReadLine());      // Laatste regel - Lettergrootte
                         Path = dlg.FileName;
                         Zichtbaar = "Visible";
+                        OpslaanAfdruk = "True";
                     }
                 }
             }
@@ -379,6 +380,65 @@ namespace WPFTestWenskaart.ViewModel
             {
                 MessageBox.Show("openen mislukt : " + ex.Message);
             }
+        }
+        public RelayCommand<ExecutedRoutedEventArgs> PrintCommand
+        {
+            get { return new RelayCommand<ExecutedRoutedEventArgs>(AfdrukkenBestand); }
+        }
+        private double A4breedte = 500;
+        private double A4hoogte = 500;
+        private FixedDocument StelAfdrukSamen()
+        {
+            FixedDocument document = new FixedDocument();
+            document.DocumentPaginator.PageSize = new Size(A4breedte, A4hoogte);
+            PageContent inhoud = new PageContent();
+            document.Pages.Add(inhoud);
+            FixedPage page = new FixedPage();
+            inhoud.Child = page;
+            page.Width = A4breedte;
+            page.Height = A4hoogte;
+            Canvas doek = new Canvas();
+            doek.Width = 500;
+            doek.Height = 400;
+            doek.Background = Achtergrond;
+            for (int i = 0; i < Aantal; i++)
+            {
+                Bal bal = Ballen[i];
+                Ellipse balletje = new Ellipse();
+                balletje.Fill = bal.Kleur;
+                Canvas.SetLeft(balletje, bal.X);
+                Canvas.SetTop(balletje, bal.Y);
+                doek.Children.Add(balletje);
+            }
+            page.Children.Add(doek);
+            Label wens = new Label();
+            wens.Content = Tekst;
+            wens.FontFamily = Lettertype;
+            wens.FontSize = Lettergrootte;
+            wens.Width = 500;
+            wens.Margin = new Thickness(0, 415, 0, 15);
+            wens.HorizontalContentAlignment = HorizontalAlignment.Center;
+            page.Children.Add(wens);
+            return document;
+        }
+        private void AfdrukkenBestand(ExecutedRoutedEventArgs e)
+        {
+            PrintDialog afdrukken = new PrintDialog();
+            if (afdrukken.ShowDialog() == true)
+            {
+                afdrukken.PrintDocument(StelAfdrukSamen().DocumentPaginator, "Wenskaart");
+            }
+        }
+        public RelayCommand<ExecutedRoutedEventArgs> PrintPreviewCommand
+        {
+            get { return new RelayCommand<ExecutedRoutedEventArgs>(AfdrukvoorbeeldBestand); }
+        }
+        private void AfdrukvoorbeeldBestand(ExecutedRoutedEventArgs e)
+        {
+            View.Afdrukvoorbeeld preview = new View.Afdrukvoorbeeld();
+            preview.AfdrukDocument = StelAfdrukSamen();
+            preview.ShowDialog();
+
         }
         public RelayCommand AfsluitenCommand
         {

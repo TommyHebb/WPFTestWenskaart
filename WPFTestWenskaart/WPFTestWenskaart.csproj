@@ -75,6 +75,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="View\Afdrukvoorbeeld.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Resources\mijnBal.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -89,6 +93,9 @@
     </Compile>
     <Compile Include="Model\Wenskaart.cs" />
     <Compile Include="ViewModel\WenskaartVM.cs" />
+    <Compile Include="View\Afdrukvoorbeeld.xaml.cs">
+      <DependentUpon>Afdrukvoorbeeld.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\WenskaartView.xaml.cs">
       <DependentUpon>WenskaartView.xaml</DependentUpon>
       <SubType>Code</SubType>
