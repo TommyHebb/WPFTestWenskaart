@@ -40,6 +40,9 @@
                         <i:EventTrigger EventName="Drop">
                             <gala:EventToCommand Command="{Binding Bal_MouseDrop}" PassEventArgsToCommand="True" />
                         </i:EventTrigger>
+                        <i:EventTrigger EventName="MouseMove">
+                            <gala:EventToCommand Command="{Binding BalCanvas_MouseMove}" PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
                     </i:Interaction.Triggers>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -49,13 +52,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Fill="{Binding Path=Kleur}"  Tag="CanvasBal">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown">
-                                        <gala:EventToCommand Command="{Binding BalCanvas_MouseMove}" PassEventArgsToCommand="True" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Ellipse>
+                            <Ellipse Fill="{Binding Path=Kleur}"  Tag="CanvasBal"></Ellipse>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
@@ -77,7 +74,7 @@
                     <StackPanel Height="50">
                         <Ellipse Margin="5"  Fill="{Binding Kleur}">
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown">
+                                <i:EventTrigger EventName="MouseMove">
                                     <gala:EventToCommand Command="{Binding Bal_MouseMove}" PassEventArgsToCommand="True" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>

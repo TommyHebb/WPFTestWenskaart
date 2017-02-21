@@ -16,9 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using WPFTestWenskaart.Model;
-//Nog te implementeren:
-//    Vuilbak
-//    Verplaatsen bal op Canvas
+// ShortCut Keys menu niet geïmplementeerd
 namespace WPFTestWenskaart.ViewModel
 {
     public class WenskaartVM : ViewModelBase
@@ -543,9 +541,9 @@ namespace WPFTestWenskaart.ViewModel
         private Ellipse sleepbal = new Ellipse();
         private void OnMouseMove(MouseEventArgs e)
         {
-            sleepbal = (Ellipse)e.OriginalSource;
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if ((e.LeftButton == MouseButtonState.Pressed) && (e.OriginalSource is Ellipse))
             {
+                sleepbal = (Ellipse)e.OriginalSource;
                 DragDrop.DoDragDrop(sleepbal, Kleur, DragDropEffects.Move);
             }
         }
@@ -571,9 +569,24 @@ namespace WPFTestWenskaart.ViewModel
         private Ellipse canvasSleepbal = new Ellipse();
         private void OnCanvasMouseMove(MouseEventArgs e)
         {
-            canvasSleepbal = (Ellipse)e.OriginalSource;
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if ((e.LeftButton == MouseButtonState.Pressed) && (e.OriginalSource is Ellipse))
             {
+                canvasSleepbal = (Ellipse)e.OriginalSource;
+                Kleur = canvasSleepbal.Fill;
+                ItemsControl balletje = (ItemsControl)e.Source;
+                Ellipse inBalletje = (Ellipse)e.OriginalSource;
+                Point pointBalletje = e.GetPosition(balletje);
+                Point pointInBalletje = e.GetPosition(inBalletje);
+                X = pointBalletje.X - pointInBalletje.X;
+                Y = pointBalletje.Y - pointInBalletje.Y;
+                foreach (Bal bal in Ballen)
+                {
+                    if ((bal.X == X) && (bal.Y == Y))
+                    {
+                        Ballen.Remove(bal);
+                        break;
+                    }
+                }
                 DragDrop.DoDragDrop(canvasSleepbal, Kleur, DragDropEffects.Move);
             }
         }
