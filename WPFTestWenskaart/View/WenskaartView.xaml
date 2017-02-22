@@ -35,7 +35,7 @@
         </StatusBar>
         <StackPanel Name="Venster" Orientation="Horizontal" Visibility="{Binding Zichtbaar}">
             <StackPanel Width="500" Height="460" Margin="5">
-                <ItemsControl ItemsSource="{Binding Path=Ballen}" AllowDrop="True">
+                <ItemsControl ItemsSource="{Binding Ballen}" AllowDrop="True">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Drop">
                             <gala:EventToCommand Command="{Binding Bal_MouseDrop}" PassEventArgsToCommand="True" />
